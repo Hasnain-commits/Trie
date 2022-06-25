@@ -1,7 +1,8 @@
 class TrieNode {
   constructor() {
-    this.words = new Map();
-    this.end = false;
+    this.words = {};
+    this.count = {};
+    this.endWord = false;
   }
 }
 
@@ -10,36 +11,62 @@ class Trie {
     this.root = new TrieNode();
   }
 
-  addWord(word) {
-    let curr = this.root;
+  insertWord(word) {
+    if (!word.length) return null;
+
+    let root = this.root;
 
     for (let c of word) {
-      if (!curr.words.has(c)) curr.words.set(c, new TrieNode());
-      curr = curr.words.get(c);
+      if (!(c in root.words)) {
+        root.words[c] = new TrieNode();
+        root.count[c] = 1;
+      } else {
+        root.count[c]++;
+      }
+
+      root = root.words[c];
     }
 
-    curr.end = true;
+    root.endWord = true;
   }
 
   hasWord(word) {
-    let curr = this.root;
+    if (!word.length) return null;
+
+    let root = this.root;
 
     for (let c of word) {
-      if (!curr.words.has(c)) return false;
-      curr = curr.words.get(c);
+      if (!(c in root.words)) return false;
+      root = root.words[c];
+    }
+
+    return root.endWord;
+  }
+
+  hasPrefix(prefix) {
+    if (!prefix.length) return null;
+
+    let root = this.root;
+
+    for (let c of prefix) {
+      if (!(c in root.words)) return false;
+      root = root.words[c];
     }
 
     return true;
   }
 
-  startsWith(prefix) {
-    let curr = this.root;
+  countPrefix(prefix) {
+    if (!prefix.length) return null;
+    if (!this.hasPrefix(prefix)) return 0;
+    let root = this.root,
+      totalCount = 0;
 
     for (let c of prefix) {
-      if (!curr.words.has(c)) return false;
-      curr = curr.words.get(c);
+      totalCount = root.count[c];
+      root = root.words[c];
     }
 
-    return true;
+    return totalCount;
   }
 }
